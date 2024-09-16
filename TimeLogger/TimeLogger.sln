@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeLoggerApp", "TimeLoggerApp\TimeLoggerApp.csproj", "{A8064BA2-4849-4E40-923A-9027AE668B06}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TimeLoggerSetup", "TimeLoggerSetup\TimeLoggerSetup.vdproj", "{E14FC53F-E02E-4C84-A9CB-777CFA775448}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8064BA2-4849-4E40-923A-9027AE668B06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8064BA2-4849-4E40-923A-9027AE668B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8064BA2-4849-4E40-923A-9027AE668B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8064BA2-4849-4E40-923A-9027AE668B06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E14FC53F-E02E-4C84-A9CB-777CFA775448}.Debug|Any CPU.ActiveCfg = Debug
+		{E14FC53F-E02E-4C84-A9CB-777CFA775448}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {032D36CE-E412-4C53-B9E1-E1B29784D0AB}
+	EndGlobalSection
+EndGlobal
