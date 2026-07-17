@@ -2,4 +2,6 @@
 <Configuration>
   <!--Temps entre chaque rappel en minute -->
   <Time>20</Time>
+  <!--Heure de déclenchement automatique du day report -->
+  <DayReportHour>17</DayReportHour>
 </Configuration>

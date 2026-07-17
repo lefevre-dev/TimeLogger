@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Data.SQLite;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using TimeLoggerApp.Properties;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeLoggerApp
 {
@@ -40,7 +40,9 @@ namespace TimeLoggerApp
         private NotifyIcon trayIcon;
         private Timer timer = new Timer();
         private Timer timer_icon = new Timer();
+        private Timer timer_day_report = new Timer();
         private DateTime last_time = new DateTime();
+        private DateTime last_day_report_prompt_date = DateTime.MinValue;
         Form1 form;
         Summary summary;
         public MyCustomApplicationContext()
@@ -56,6 +58,7 @@ namespace TimeLoggerApp
                     new MenuItem("Exit", Exit),
                     new MenuItem("Summary", Summary),
                     new MenuItem("Log", Log),
+                    new MenuItem("Day report", DayReport),
                 }),
                 Visible = true
             };
@@ -68,6 +71,12 @@ namespace TimeLoggerApp
             timer_icon.Interval = 1000; // tout les 1s
             timer_icon.Tick += new EventHandler(onTimer_icon);
             timer_icon.Start();
+
+            timer_day_report.Interval = 60 * 1000; // verification toutes les minutes
+            timer_day_report.Tick += new EventHandler(onTimer_day_report);
+            timer_day_report.Start();
+
+            CheckDayReportSchedule();
             update_tray_icon();
         }
 
@@ -85,11 +94,74 @@ namespace TimeLoggerApp
             update_tray_icon();
         }
 
+        private void onTimer_day_report(object sender, EventArgs e)
+        {
+            CheckDayReportSchedule();
+        }
+
+        private void CheckDayReportSchedule()
+        {
+            DateTime now = DateTime.Now;
+            int dayReportHour = ConfigFile.Instance.GetValue<int>("DayReportHour", 17);
+
+            if (last_day_report_prompt_date.Date == now.Date)
+            {
+                return;
+            }
+
+            if (now.Hour >= dayReportHour)
+            {
+                last_day_report_prompt_date = now.Date;
+                DayReport(this, EventArgs.Empty);
+            }
+        }
+
         private void Log(object sender, EventArgs e)
         {
             // sauvegarde de la date de déclanchement
             last_time = DateTime.Now;
             onTimer_log(sender, e);
+        }
+
+        private void DayReport(object sender, EventArgs e)
+        {
+            string report = ShowDayReportPopup();
+            if (string.IsNullOrWhiteSpace(report))
+            {
+                return;
+            }
+
+            DateTime d = DateTime.Now;
+            SQLiteConnection conn = SqliteUtil.CreateConnection();
+            SqliteUtil.InsertReport(conn, d.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern), report.Trim());
+            last_day_report_prompt_date = d.Date;
+        }
+
+        private string ShowDayReportPopup()
+        {
+            using (Form popup = new Form())
+            {
+                popup.Width = 600;
+                popup.Height = 270;
+                popup.FormBorderStyle = FormBorderStyle.FixedDialog;
+                popup.Text = "Day report";
+                popup.StartPosition = FormStartPosition.CenterScreen;
+                popup.TopMost = true;
+
+                Label label = new Label() { Left = 12, Top = 12, Width = 560, Text = "Saisir le rapport de la journée" };
+                TextBox textBox = new TextBox() { Left = 12, Top = 35, Width = 560, Height = 150, Multiline = true };
+                Button buttonOk = new Button() { Text = "Ajouter", Left = 497, Width = 75, Top = 195, DialogResult = DialogResult.OK };
+                Button buttonCancel = new Button() { Text = "Annuler", Left = 412, Width = 75, Top = 195, DialogResult = DialogResult.Cancel };
+
+                popup.Controls.Add(label);
+                popup.Controls.Add(textBox);
+                popup.Controls.Add(buttonOk);
+                popup.Controls.Add(buttonCancel);
+                popup.AcceptButton = buttonOk;
+                popup.CancelButton = buttonCancel;
+
+                return popup.ShowDialog() == DialogResult.OK ? textBox.Text : string.Empty;
+            }
         }
 
         /// <summary>
@@ -124,6 +196,7 @@ namespace TimeLoggerApp
         private void Exit(object sender, EventArgs e)
         {
             trayIcon.Visible = false;
+            timer_day_report.Stop();
             Application.Exit();
         }
 

@@ -23,12 +23,23 @@ namespace TimeLoggerApp
 
             SQLiteConnection conn = SqliteUtil.CreateConnection();
             List<DataLog> data = SqliteUtil.SelectData(conn);
+            SQLiteConnection conn_report = SqliteUtil.CreateConnection();
+            List<DataLog> reports = SqliteUtil.SelectReportData(conn_report);
 
             // remplissage de la combobox
             List<string> dates = new List<string>();
             foreach (DataLog log in data)
             {
                 string date_dd_mm_yyyy = log.Date.Split(' ')[0];
+                if (!dates.Contains(date_dd_mm_yyyy))
+                {
+                    dates.Add(date_dd_mm_yyyy);
+                }
+            }
+
+            foreach (DataLog report in reports)
+            {
+                string date_dd_mm_yyyy = report.Date.Split(' ')[0];
                 if (!dates.Contains(date_dd_mm_yyyy))
                 {
                     dates.Add(date_dd_mm_yyyy);
@@ -70,6 +81,7 @@ namespace TimeLoggerApp
         {
             string selected_combo = comboBox1.Text;
             dataGridView1.Rows.Clear();
+            dataGridView2.Rows.Clear();
             SQLiteConnection conn = SqliteUtil.CreateConnection();
             List<DataLog> data = SqliteUtil.SelectData(conn);
             foreach (DataLog log in data)
@@ -79,6 +91,18 @@ namespace TimeLoggerApp
                 if (date_dd_mm_yyyy == selected_combo)
                 {
                     dataGridView1.Rows.Add(date_hh_mm, log.Log);
+                }
+            }
+
+            SQLiteConnection conn_report = SqliteUtil.CreateConnection();
+            List<DataLog> reports = SqliteUtil.SelectReportData(conn_report);
+            foreach (DataLog report in reports)
+            {
+                string date_dd_mm_yyyy = report.Date.Split(' ')[0];
+                string date_hh_mm = report.Date.Split(' ')[1];
+                if (date_dd_mm_yyyy == selected_combo)
+                {
+                    dataGridView2.Rows.Add(date_hh_mm, report.Log);
                 }
             }
         }
